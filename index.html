@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ghar ka Khana — Fresh Tiffins</title>
+  <meta name="description" content="Fresh home-cooked tiffins delivered daily. Order, register and manage your tiffin subscription." />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary: #BA7517;
+      --primary-light: #FAEEDA;
+      --primary-dark: #633806;
+      --primary-bg: #FFF8F0;
+      --primary-border: #F0D8C0;
+      --success-bg: #EAF3DE;
+      --success-text: #27500A;
+      --success-border: #97C459;
+      --jain-bg: #FAEEDA;
+      --jain-text: #633806;
+      --wa-green: #25D366;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --text: #1a1a1a;
+      --text-muted: #666;
+      --bg: #f5f5f3;
+      --card-bg: #ffffff;
+      --border: rgba(0,0,0,0.12);
+      --border-hover: rgba(0,0,0,0.25);
+      --surface: #f1efe8;
+      --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --text: #f0ede8;
+        --text-muted: #999;
+        --bg: #1c1b19;
+        --card-bg: #252420;
+        --border: rgba(255,255,255,0.12);
+        --border-hover: rgba(255,255,255,0.28);
+        --surface: #2c2b27;
+        --primary-bg: #2a1f0a;
+        --primary-border: #4a3010;
+        --primary-light: #2a1f0a;
+        --success-bg: #0e2208;
+        --jain-bg: #2a1f0a;
+      }
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 0 80px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 420px;
+      min-height: 100vh;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar {
+      background: var(--primary);
+      padding: 14px 16px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .topbar-title { color: white; font-size: 17px; font-weight: 600; display: flex; align-items: center; gap: 7px; }
+    .topbar-sub { color: #FAEEDA; font-size: 12px; margin-top: 2px; }
+    .avatar {
+      width: 38px; height: 38px; border-radius: 50%;
+      background: #FAEEDA; display: flex; align-items: center;
+      justify-content: center; font-size: 14px; font-weight: 600;
+      color: var(--primary-dark); cursor: pointer; flex-shrink: 0;
+    }
+
+    .nav {
+      display: flex;
+      background: var(--card-bg);
+      border-bottom: 0.5px solid var(--border);
+      position: sticky;
+      top: 64px;
+      z-index: 9;
+    }
+    .nav-btn {
+      flex: 1; padding: 10px 4px 8px; font-size: 11px; font-weight: 500;
+      color: var(--text-muted); border: none; background: transparent;
+      cursor: pointer; display: flex; flex-direction: column; align-items: center;
+      gap: 3px; border-bottom: 2px solid transparent; transition: all 0.15s;
+      font-family: var(--font);
+    }
+    .nav-btn i { font-size: 20px; }
+    .nav-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+    .screen { display: none; padding: 16px; flex: 1; }
+    .screen.active { display: block; }
+
+    .section-label {
+      font-size: 11px; font-weight: 600; color: var(--text-muted);
+      letter-spacing: 0.07em; text-transform: uppercase; margin-bottom: 12px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+
+    .menu-date {
+      font-size: 13px; font-weight: 600; color: var(--primary);
+      margin-bottom: 14px; display: flex; align-items: center; gap: 6px;
+    }
+
+    .item-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 11px 0; border-bottom: 0.5px solid var(--border);
+    }
+    .item-row:last-child { border-bottom: none; }
+    .item-info { flex: 1; }
+    .item-name { font-size: 14px; color: var(--text); font-weight: 500; }
+    .item-price { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    .item-tag {
+      font-size: 11px; padding: 2px 8px; border-radius: 999px;
+      display: inline-block; margin-top: 4px;
+      background: var(--success-bg); color: var(--success-text);
+    }
+    .item-tag.jain { background: var(--jain-bg); color: var(--jain-text); }
+
+    .qty-ctrl { display: flex; align-items: center; gap: 10px; }
+    .qty-btn {
+      width: 30px; height: 30px; border-radius: 50%;
+      border: 0.5px solid var(--border-hover);
+      background: var(--surface); font-size: 18px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text); transition: background 0.1s; line-height: 1;
+      font-family: var(--font);
+    }
+    .qty-btn:hover { background: var(--primary-light); }
+    .qty-btn.remove { color: #E24B4A; }
+    .qty-num { font-size: 15px; font-weight: 600; color: var(--text); min-width: 18px; text-align: center; }
+
+    .order-bar {
+      background: var(--primary-bg);
+      border: 0.5px solid var(--primary-border);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      display: flex; align-items: center; justify-content: space-between;
+      margin-top: 14px;
+    }
+    .order-total { font-size: 13px; color: var(--text-muted); }
+    .order-total span { font-size: 20px; font-weight: 600; color: var(--primary); }
+    .order-btn {
+      background: var(--primary); color: white; border: none;
+      padding: 9px 20px; border-radius: var(--radius-sm);
+      font-size: 13px; font-weight: 600; cursor: pointer; font-family: var(--font);
+      transition: opacity 0.15s;
+    }
+    .order-btn:hover { opacity: 0.87; }
+
+    .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+    .metric { background: var(--surface); border-radius: var(--radius-sm); padding: 12px 14px; }
+    .metric-label { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
+    .metric-val { font-size: 24px; font-weight: 600; color: var(--text); }
+
+    .form-group { margin-bottom: 13px; }
+    .form-group label { font-size: 12px; color: var(--text-muted); font-weight: 600; display: block; margin-bottom: 5px; letter-spacing: 0.02em; }
+    .form-group input, .form-group select {
+      width: 100%; padding: 10px 12px;
+      border: 0.5px solid var(--border-hover);
+      border-radius: var(--radius-sm); font-size: 14px;
+      background: var(--surface); color: var(--text);
+      font-family: var(--font); transition: border-color 0.15s;
+    }
+    .form-group input:focus, .form-group select:focus {
+      outline: none; border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(186,117,23,0.12);
+    }
+
+    .primary-btn {
+      width: 100%; background: var(--primary); color: white;
+      border: none; padding: 12px; border-radius: var(--radius-sm);
+      font-size: 15px; font-weight: 600; cursor: pointer;
+      font-family: var(--font); transition: opacity 0.15s; margin-top: 4px;
+    }
+    .primary-btn:hover { opacity: 0.87; }
+    .secondary-btn {
+      width: 100%; background: var(--surface); color: var(--text);
+      border: 0.5px solid var(--border-hover); padding: 11px;
+      border-radius: var(--radius-sm); font-size: 14px; font-weight: 500;
+      cursor: pointer; font-family: var(--font); transition: background 0.15s;
+    }
+    .secondary-btn:hover { background: var(--primary-light); }
+
+    .wa-btn {
+      width: 100%; display: flex; align-items: center; justify-content: center;
+      gap: 8px; background: var(--wa-green); color: white; border: none;
+      padding: 12px; border-radius: var(--radius-sm); font-size: 15px;
+      font-weight: 600; cursor: pointer; font-family: var(--font);
+      transition: opacity 0.15s; margin-top: 10px;
+    }
+    .wa-btn:hover { opacity: 0.87; }
+    .wa-btn i { font-size: 20px; }
+
+    .toggle-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 13px; }
+    .toggle-opt {
+      padding: 12px 8px; border: 0.5px solid var(--border-hover);
+      border-radius: var(--radius-sm); text-align: center;
+      cursor: pointer; background: var(--surface); transition: all 0.15s;
+    }
+    .toggle-opt.active { border: 2px solid var(--primary); background: var(--primary-bg); }
+    .toggle-opt i { font-size: 22px; color: var(--primary); display: block; margin-bottom: 5px; }
+    .toggle-opt span { font-size: 12px; font-weight: 600; color: var(--text); }
+
+    .hist-row {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      padding: 12px 0; border-bottom: 0.5px solid var(--border);
+    }
+    .hist-row:last-child { border-bottom: none; }
+    .hist-date { font-size: 12px; color: var(--text-muted); margin-bottom: 3px; }
+    .hist-items { font-size: 13px; color: var(--text); }
+    .hist-total { font-size: 15px; font-weight: 600; color: var(--primary); white-space: nowrap; margin-left: 12px; }
+    .status-pill { font-size: 11px; padding: 2px 9px; border-radius: 999px; display: inline-block; margin-top: 4px; font-weight: 500; }
+    .status-pill.delivered { background: var(--success-bg); color: var(--success-text); }
+    .status-pill.pending { background: var(--primary-light); color: var(--primary-dark); }
+
+    .success-box {
+      background: var(--success-bg); border: 0.5px solid var(--success-border);
+      border-radius: var(--radius-sm); padding: 13px; text-align: center;
+      color: var(--success-text); font-size: 13px; display: none; margin-top: 12px;
+      font-weight: 500;
+    }
+
+    .profile-card {
+      display: flex; align-items: center; gap: 14px; padding: 16px;
+      background: var(--primary-bg); border: 0.5px solid var(--primary-border);
+      border-radius: var(--radius-md); margin-bottom: 14px;
+    }
+    .profile-av {
+      width: 52px; height: 52px; border-radius: 50%; background: var(--primary-light);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; font-weight: 700; color: var(--primary-dark); flex-shrink: 0;
+    }
+
+    .jain-notice {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--jain-bg); border: 0.5px solid #EF9F27;
+      border-radius: var(--radius-sm); padding: 9px 13px;
+      font-size: 13px; color: var(--jain-text); font-weight: 500;
+      margin-bottom: 14px;
+    }
+
+    .empty-state { text-align: center; padding: 28px 0; color: var(--text-muted); font-size: 13px; }
+    .empty-state i { font-size: 36px; display: block; margin-bottom: 8px; color: var(--border-hover); }
+
+    @media (max-width: 440px) {
+      .app { max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <div class="topbar">
+    <div>
+      <div class="topbar-title">
+        <i class="ti ti-bowl-chopsticks"></i> Ghar ka Khana
+      </div>
+      <div class="topbar-sub">Fresh tiffins · Launching July 15</div>
+    </div>
+    <div class="avatar" id="top-avatar" onclick="goTo('profile')" title="Profile">?</div>
+  </div>
+
+  <div class="nav">
+    <button class="nav-btn active" onclick="goTo('menu')" id="nav-menu">
+      <i class="ti ti-tools-kitchen-2"></i>Menu
+    </button>
+    <button class="nav-btn" onclick="goTo('order')" id="nav-order">
+      <i class="ti ti-shopping-bag"></i>Order
+    </button>
+    <button class="nav-btn" onclick="goTo('history')" id="nav-history">
+      <i class="ti ti-clock-history"></i>History
+    </button>
+    <button class="nav-btn" onclick="goTo('register')" id="nav-register">
+      <i class="ti ti-user-plus"></i>Register
+    </button>
+  </div>
+
+  <div class="screen active" id="screen-menu">
+    <div class="menu-date">
+      <i class="ti ti-calendar"></i>
+      Today's menu — <span id="today-date"></span>
+    </div>
+    <div class="jain-notice">
+      <i class="ti ti-leaf" style="font-size:16px;"></i>
+      Jain options available — no onion, no garlic
+    </div>
+    <div class="section-label">Add items to your tiffin</div>
+    <div class="card" id="menu-items">
+      <div class="item-row">
+        <div class="item-info">
+          <div class="item-name">Dal tadka</div>
+          <div class="item-price">$3.00 per serving</div>
+          <span class="item-tag">Veg</span>
+        </div>
+        <div class="qty-ctrl">
+          <button class="qty-btn" onclick="changeQty('dal',-1)" aria-label="Remove">−</button>
+          <div class="qty-num" id="qty-dal">0</div>
+          <button class="qty-btn" onclick="changeQty('dal',1)" aria-label="Add">+</button>
+        </div>
+      </div>
+      <div class="item-row">
+        <div class="item-info">
+          <div class="item-name">Jeera rice</div>
+          <div class="item-price">$2.50 per serving</div>
+          <span class="item-tag">Veg</span>
+        </div>
+        <div class="qty-ctrl">
+          <button class="qty-btn" onclick="changeQty('rice',-1)" aria-label="Remove">−</button>
+          <div class="qty-num" id="qty-rice">0</div>
+          <button class="qty-btn" onclick="changeQty('rice',1)" aria-label="Add">+</button>
+        </div>
+      </div>
+      <div class="item-row">
+        <div class="item-info">
+          <div class="item-name">Aloo sabzi</div>
+          <div class="item-price">$2.50 per serving</div>
+          <span class="item-tag">Veg</span>
+        </div>
+        <div class="qty-ctrl">
+          <button class="qty-btn" onclick="changeQty('sabzi',-1)" aria-label="Remove">−</button>
+          <div class="qty-num" id="qty-sabzi">0</div>
+          <button class="qty-btn" onclick="changeQty('sabzi',1)" aria-label="Add">+</button>
+        </div>
+      </div>
+      <div class="item-row">
+        <div class="item-info">
+          <div class="item-name">Roti (2 pcs)</div>
+          <div class="item-price">$1.50 per serving</div>
+          <span class="item-tag">Veg</span>
+        </div>
+        <div class="qty-ctrl">
+          <button class="qty-btn" onclick="changeQty('roti',-1)" aria-label="Remove">−</button>
+          <div class="qty-num" id="qty-roti">0</div>
+          <button class="qty-btn" onclick="changeQty('roti',1)" aria-label="Add">+</button>
+        </div>
+      </div>
+      <div class="item-row">
+        <div class="item-info">
+          <div class="item-name">Jain dal (no onion/garlic)</div>
+          <div class="item-price">$3.50 per serving</div>
+          <span class="item-tag jain">Jain</span>
+        </div>
+        <div class="qty-ctrl">
+          <button class="qty-btn" onclick="changeQty('jdal',-1)" aria-label="Remove">−</button>
+          <div class="qty-num" id="qty-jdal">0</div>
+          <button class="qty-btn" onclick="changeQty('jdal',1)" aria-label="Add">+</button>
+        </div>
+      </div>
+      <div class="item-row">
+        <div class="item-info">
+          <div class="item-name">Jain sabzi (no root veg)</div>
+          <div class="item-price">$3.00 per serving</div>
+          <span class="item-tag jain">Jain</span>
+        </div>
+        <div class="qty-ctrl">
+          <button class="qty-btn" onclick="changeQty('jsabzi',-1)" aria-label="Remove">−</button>
+          <div class="qty-num" id="qty-jsabzi">0</div>
+          <button class="qty-btn" onclick="changeQty('jsabzi',1)" aria-label="Add">+</button>
+        </div>
+      </div>
+      <div class="item-row">
+        <div class="item-info">
+          <div class="item-name">Kheer (dessert)</div>
+          <div class="item-price">$2.00 per serving</div>
+          <span class="item-tag">Veg</span>
+        </div>
+        <div class="qty-ctrl">
+          <button class="qty-btn" onclick="changeQty('kheer',-1)" aria-label="Remove">−</button>
+          <div class="qty-num" id="qty-kheer">0</div>
+          <button class="qty-btn" onclick="changeQty('kheer',1)" aria-label="Add">+</button>
+        </div>
+      </div>
+    </div>
+    <div class="order-bar">
+      <div class="order-total">Total: <span id="menu-total">$0.00</span></div>
+      <button class="order-btn" onclick="placeOrder()">Place order →</button>
+    </div>
+    <div class="success-box" id="order-success">
+      <i class="ti ti-circle-check" style="font-size:20px;vertical-align:-3px;margin-right:5px;"></i>
+      Order placed! WhatsApp confirmation coming shortly.
+    </div>
+  </div>
+
+  <div class="screen" id="screen-order">
+    <div class="section-label">Current order</div>
+    <div class="card" id="order-summary-card">
+      <div class="empty-state">
+        <i class="ti ti-shopping-bag"></i>
+        No items yet — go to Menu to add items
+      </div>
+    </div>
+    <div id="order-payment-section" style="display:none;">
+      <div class="metric-grid">
+        <div class="metric"><div class="metric-label">Items</div><div class="metric-val" id="order-item-count">0</div></div>
+        <div class="metric"><div class="metric-label">Total payable</div><div class="metric-val" id="order-total-display">$0</div></div>
+      </div>
+      <div class="card" style="background:var(--primary-bg);border-color:var(--primary-border);">
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">PAYMENT NOTE</div>
+        <div style="font-size:13px;color:var(--text);">Please pay via e-transfer or cash on delivery. UPI / Interac details will be shared on WhatsApp after confirmation.</div>
+      </div>
+      <button class="wa-btn" onclick="sendWhatsApp()">
+        <i class="ti ti-brand-whatsapp"></i> Confirm order on WhatsApp
+      </button>
+    </div>
+  </div>
+
+  <div class="screen" id="screen-history">
+    <div class="section-label">Order history</div>
+    <div class="metric-grid">
+      <div class="metric"><div class="metric-label">Total orders</div><div class="metric-val">3</div></div>
+      <div class="metric"><div class="metric-label">Total spent</div><div class="metric-val">$87</div></div>
+    </div>
+    <div class="card">
+      <div class="hist-row">
+        <div>
+          <div class="hist-date">Mon, Jul 15 — Delivery</div>
+          <div class="hist-items">Dal tadka, Jeera rice, Roti ×2</div>
+          <span class="status-pill delivered">Delivered</span>
+        </div>
+        <div class="hist-total">$32</div>
+      </div>
+      <div class="hist-row">
+        <div>
+          <div class="hist-date">Tue, Jul 16 — Pick-up</div>
+          <div class="hist-items">Jain dal, Roti ×2, Kheer</div>
+          <span class="status-pill delivered">Delivered</span>
+        </div>
+        <div class="hist-total">$27</div>
+      </div>
+      <div class="hist-row">
+        <div>
+          <div class="hist-date">Wed, Jul 17 — Delivery</div>
+          <div class="hist-items">Aloo sabzi, Jeera rice, Dal tadka</div>
+          <span class="status-pill pending">Pending</span>
+        </div>
+        <div class="hist-total">$28</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="screen" id="screen-register">
+    <div class="section-label">Create your account</div>
+    <div class="form-group">
+      <label>Full name</label>
+      <input type="text" id="r-name" placeholder="Your name" oninput="updateAvatar()" />
+    </div>
+    <div class="form-group">
+      <label>WhatsApp number</label>
+      <input type="tel" id="r-phone" placeholder="+1 (___) ___-____" />
+    </div>
+    <div class="form-group">
+      <label>Email address</label>
+      <input type="email" id="r-email" placeholder="you@email.com" />
+    </div>
+    <div class="form-group">
+      <label>Subscription plan</label>
+      <select id="r-plan">
+        <option value="">Choose a plan</option>
+        <option>Daily — $14/meal</option>
+        <option>Weekly — $12/meal · $60/week</option>
+        <option>Monthly — $10/meal · $200/month</option>
+      </select>
+    </div>
+    <div style="margin-bottom:13px;">
+      <label style="font-size:12px;color:var(--text-muted);font-weight:600;display:block;margin-bottom:8px;letter-spacing:0.02em;">PREFERRED DELIVERY</label>
+      <div class="toggle-row">
+        <div class="toggle-opt active" id="r-delivery" onclick="pickDelivery('delivery')">
+          <i class="ti ti-motorbike"></i>
+          <span>Home delivery</span>
+        </div>
+        <div class="toggle-opt" id="r-pickup" onclick="pickDelivery('pickup')">
+          <i class="ti ti-home"></i>
+          <span>Pick up</span>
+        </div>
+      </div>
+    </div>
+    <div class="form-group" id="r-addr-group">
+      <label>Delivery address</label>
+      <input type="text" id="r-addr" placeholder="Street address, city" />
+    </div>
+    <button class="primary-btn" id="reg-btn" onclick="registerUser()">Register &amp; start ordering →</button>
+    <div class="success-box" id="reg-success">
+      <i class="ti ti-circle-check" style="font-size:20px;vertical-align:-3px;margin-right:5px;"></i>
+      Welcome! We'll reach out on WhatsApp to confirm your plan before July 15.
+    </div>
+  </div>
+
+  <div class="screen" id="screen-profile">
+    <div class="profile-card">
+      <div class="profile-av" id="profile-av">?</div>
+      <div>
+        <div style="font-size:16px;font-weight:600;color:var(--text);" id="profile-name">Guest</div>
+        <div style="font-size:13px;color:var(--text-muted);margin-top:2px;" id="profile-plan">No plan selected</div>
+      </div>
+    </div>
+    <div class="metric-grid">
+      <div class="metric"><div class="metric-label">This month</div><div class="metric-val">$87</div></div>
+      <div class="metric"><div class="metric-label">Orders placed</div><div class="metric-val">3</div></div>
+    </div>
+    <div class="section-label">Account</div>
+    <div class="card">
+      <div style="font-size:13px;color:var(--text-muted);">Register to view and manage your full profile, plan, and delivery preferences.</div>
+    </div>
+    <button class="secondary-btn" onclick="goTo('register')">Edit profile</button>
+  </div>
+
+</div>
+
+<script>
+  const prices = { dal:3, rice:2.5, sabzi:2.5, roti:1.5, jdal:3.5, jsabzi:3, kheer:2 };
+  const names  = { dal:'Dal tadka', rice:'Jeera rice', sabzi:'Aloo sabzi', roti:'Roti ×2', jdal:'Jain dal', jsabzi:'Jain sabzi', kheer:'Kheer' };
+  const qty    = { dal:0, rice:0, sabzi:0, roti:0, jdal:0, jsabzi:0, kheer:0 };
+
+  function changeQty(item, delta) {
+    qty[item] = Math.max(0, qty[item] + delta);
+    document.getElementById('qty-' + item).textContent = qty[item];
+    updateMenuTotal();
+  }
+
+  function updateMenuTotal() {
+    let total = 0;
+    Object.keys(qty).forEach(k => total += qty[k] * prices[k]);
+    document.getElementById('menu-total').textContent = '$' + total.toFixed(2);
+  }
+
+  function placeOrder() {
+    let total = 0;
+    Object.keys(qty).forEach(k => total += qty[k] * prices[k]);
+    if (total === 0) { alert('Please add at least one item first.'); return; }
+    const box = document.getElementById('order-success');
+    box.style.display = 'block';
+    updateOrderSummary();
+    setTimeout(() => { box.style.display = 'none'; goTo('order'); }, 1800);
+  }
+
+  function updateOrderSummary() {
+    let total = 0, count = 0, html = '';
+    Object.keys(qty).forEach(k => {
+      if (qty[k] > 0) {
+        total += qty[k] * prices[k];
+        count += qty[k];
+        html += `<div class="item-row">
+          <div class="item-info">
+            <div class="item-name">${names[k]}</div>
+            <div class="item-price">×${qty[k]} — $${(qty[k]*prices[k]).toFixed(2)}</div>
+          </div>
+          <button class="qty-btn remove" onclick="removeItem('${k}')" aria-label="Remove ${names[k]}">
+            <i class="ti ti-trash" style="font-size:15px;"></i>
+          </button>
+        </div>`;
+      }
+    });
+    const card = document.getElementById('order-summary-card');
+    const pay  = document.getElementById('order-payment-section');
+    if (count === 0) {
+      card.innerHTML = '<div class="empty-state"><i class="ti ti-shopping-bag"></i>No items yet — go to Menu to add items</div>';
+      pay.style.display = 'none';
+    } else {
+      card.innerHTML = html;
+      document.getElementById('order-item-count').textContent = count;
+      document.getElementById('order-total-display').textContent = '$' + total.toFixed(2);
+      pay.style.display = 'block';
+    }
+  }
+
+  function removeItem(key) {
+    qty[key] = 0;
+    document.getElementById('qty-' + key).textContent = 0;
+    updateMenuTotal();
+    updateOrderSummary();
+  }
+
+  function sendWhatsApp() {
+    let msg = 'Hi! I would like to place a tiffin order:%0A%0A';
+    Object.keys(qty).forEach(k => { if (qty[k] > 0) msg += `- ${names[k]} ×${qty[k]}%0A`; });
+    let total = 0;
+    Object.keys(qty).forEach(k => total += qty[k] * prices[k]);
+    msg += `%0ATotal: $${total.toFixed(2)}%0A%0APlease confirm my order. Thank you!`;
+    window.open('https://wa.me/15551234567?text=' + msg, '_blank');
+  }
+
+  function goTo(screen) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('screen-' + screen).classList.add('active');
+    const nb = document.getElementById('nav-' + screen);
+    if (nb) nb.classList.add('active');
+    if (screen === 'order') updateOrderSummary();
+  }
+
+  function pickDelivery(mode) {
+    document.getElementById('r-delivery').classList.toggle('active', mode === 'delivery');
+    document.getElementById('r-pickup').classList.toggle('active', mode === 'pickup');
+    document.getElementById('r-addr-group').style.display = mode === 'pickup' ? 'none' : 'block';
+  }
+
+  function updateAvatar() {
+    const name = document.getElementById('r-name').value.trim();
+    const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2) || '?';
+    document.getElementById('top-avatar').textContent = initials;
+    document.getElementById('profile-av').textContent = initials;
+    document.getElementById('profile-name').textContent = name || 'Guest';
+  }
+
+  function registerUser() {
+    const name  = document.getElementById('r-name').value.trim();
+    const phone = document.getElementById('r-phone').value.trim();
+    const plan  = document.getElementById('r-plan').value;
+    const isPickup = document.getElementById('r-pickup').classList.contains('active');
+    const addr  = document.getElementById('r-addr').value.trim();
+    if (!name || !phone || !plan) { alert('Please fill in your name, WhatsApp number, and plan.'); return; }
+    if (!isPickup && !addr) { alert('Please enter your delivery address.'); return; }
+    document.getElementById('reg-success').style.display = 'block';
+    document.getElementById('profile-name').textContent = name;
+    document.getElementById('profile-plan').textContent = plan;
+    const initials = name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+    document.getElementById('top-avatar').textContent = initials;
+    document.getElementById('profile-av').textContent = initials;
+    const btn = document.getElementById('reg-btn');
+    btn.textContent = 'Registered!';
+    btn.style.background = '#3B6D11';
+    btn.disabled = true;
+  }
+
+  const d = new Date();
+  document.getElementById('today-date').textContent = d.toLocaleDateString('en-CA', { weekday:'short', month:'short', day:'numeric' });
+</script>
+</body>
+</html>
